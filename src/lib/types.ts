@@ -370,3 +370,26 @@ export interface WorkshopConfig {
   notifyOnServiceDue: boolean;
   serviceIntervalMonths: number;
 }
+
+// ========================
+// FEEDBACK & ROADMAP
+// ========================
+
+export type FeedbackCategory = 'bug' | 'feature' | 'improvement';
+export type FeedbackPriority = 'low' | 'medium' | 'high' | 'critical';
+export type FeedbackStatus = 'new' | 'reviewed' | 'planned' | 'resolved' | 'rejected';
+
+export interface FeedbackItem {
+  id: string;
+  category: FeedbackCategory;
+  priority: FeedbackPriority;
+  status: FeedbackStatus;
+  description: string;
+  screenshotUrl?: string;
+  submittedBy: string;
+  submittedFrom: 'terminal' | 'admin';
+  warehouseCode?: string;
+  roadmapItemId?: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -2,6 +2,7 @@
 
 import { WarehouseProvider } from '@/components/terminal/WarehouseProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { FeedbackWidget } from '@/components/feedback/FeedbackWidget';
 
 export function TerminalShell({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export function TerminalShell({ children }: { children: React.ReactNode }) {
         <div className="terminal-mode min-h-screen bg-gray-50 flex flex-col max-w-[540px] mx-auto">
           {children}
         </div>
+        <FeedbackWidget context="terminal" userName="Terminal" />
       </ErrorBoundary>
     </WarehouseProvider>
   );

@@ -41,6 +41,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'System',
     items: [
+      { href: '/admin/feedback', label: 'Tilbakemelding', icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z' },
       { href: '/admin/settings', label: 'Innstillinger', icon: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4' },
       { href: '/admin/roadmap', label: 'Roadmap', icon: 'M9 5l7 7-7 7' },
     ],
@@ -94,7 +95,7 @@ export function AdminSidebar() {
         ))}
       </nav>
       <div className="p-4 border-t border-gray-700">
-        <p className="text-xs text-gray-500">v1.1 -- Monter Skien</p>
+        <p className="text-xs text-gray-500">v1.2 -- Monter Skien</p>
       </div>
     </aside>
   );
