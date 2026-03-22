@@ -118,3 +118,47 @@ export function generateLocalRentalId(): string {
   const random = Math.random().toString(36).substring(2, 8);
   return `local-${timestamp}-${random}`;
 }
+
+/**
+ * Validate driver's license class against trailer weight
+ * Based on Statens vegvesen regulations:
+ * B: trailer <= 750kg always OK, >750kg depends on towing vehicle
+ * B96: combined <= 4250kg, typically OK for trailers up to ~1500kg
+ * BE: trailer <= 3500kg always OK
+ */
+export function validateLicenseForTrailer(
+  licenseClass: 'B' | 'B96' | 'BE' | undefined,
+  trailerTotalWeight_kg: number
+): { valid: boolean; warning: boolean; message?: string } {
+  if (!licenseClass) {
+    return { valid: false, warning: true, message: 'Førerkortklasse er ikke oppgitt' };
+  }
+
+  if (licenseClass === 'BE') {
+    if (trailerTotalWeight_kg <= 3500) {
+      return { valid: true, warning: false };
+    }
+    return { valid: false, warning: false, message: 'Tilhenger over 3500 kg krever spesialtillatelse' };
+  }
+
+  if (licenseClass === 'B96') {
+    if (trailerTotalWeight_kg <= 1500) {
+      return { valid: true, warning: false };
+    }
+    return {
+      valid: true,
+      warning: true,
+      message: `Tilhenger på ${trailerTotalWeight_kg} kg med B96 — avhenger av bilens vekt. Samlet totalvekt bil+henger maks 4250 kg.`,
+    };
+  }
+
+  // Class B
+  if (trailerTotalWeight_kg <= 750) {
+    return { valid: true, warning: false };
+  }
+  return {
+    valid: false,
+    warning: true,
+    message: `Tilhenger på ${trailerTotalWeight_kg} kg krever minimum B96 eller BE førerkort. Kunden har oppgitt klasse B.`,
+  };
+}
