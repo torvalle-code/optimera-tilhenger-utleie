@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { AuthShell } from './auth-shell';
 
 export const metadata: Metadata = {
   title: 'Optimera Tilhengerutleie',
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="no">
       <body className="bg-gray-50 text-gray-900 min-h-screen">
-        {children}
+        <AuthShell>{children}</AuthShell>
       </body>
     </html>
   );
