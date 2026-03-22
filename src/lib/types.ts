@@ -32,6 +32,40 @@ export interface Trailer {
   sharefoxProductId: string;
   sharefoxInventoryId: string;
   imageUrl?: string;
+
+  // VOGNKORT-DATA (Statens vegvesen)
+  chassisNumber?: string;
+  brand?: string;
+  model?: string;
+  yearOfManufacture?: number;
+  firstRegistered?: string;
+
+  // UTVIDET VEKTDATA
+  totalPermittedWeight_kg?: number;
+  ownWeight_kg?: number;
+  payloadCapacity_kg?: number;
+  requiredLicenseClass?: 'B' | 'B96' | 'BE';
+
+  // KOPLING
+  couplingType?: 'ball_50mm' | 'ball_80mm' | 'euro' | 'other';
+  hasBrakes?: boolean;
+  hasHandbrake?: boolean;
+
+  // EU-KONTROLL
+  lastEuControl?: string;
+  nextEuControlDue?: string;
+  euControlStatus?: 'valid' | 'due_soon' | 'overdue' | 'exempt';
+
+  // FORSIKRING
+  insuranceCompany?: string;
+  insurancePolicyNumber?: string;
+  insuranceExpiry?: string;
+
+  // SERVICE
+  lastServiceDate?: string;
+  nextServiceDue?: string;
+  serviceIntervalMonths?: number;
+  serviceHistory?: ServiceRecord[];
 }
 
 // ========================
@@ -51,6 +85,14 @@ export interface Customer {
   companyName?: string;
   driversLicense: boolean;
   idVerified: boolean;
+  driversLicenseClass?: 'B' | 'B96' | 'BE';
+  driversLicenseVerified?: boolean;
+  driversLicenseExpiry?: string;
+  address?: {
+    street: string;
+    zipCode: string;
+    city: string;
+  };
 }
 
 // ========================
@@ -91,6 +133,12 @@ export interface Rental {
   damageReport?: DamageReport;
   depositAmount?: number;
   totalPrice?: number;
+  pickupChecklist?: InspectionChecklist;
+  returnChecklist?: InspectionChecklist;
+  licenseClassVerified?: boolean;
+  licenseClassSufficient?: boolean;
+  agreementAccepted?: boolean;
+  depositPaid?: boolean;
 }
 
 // ========================
@@ -215,4 +263,110 @@ export interface PriceCalculation {
   basePrice: number;
   totalPrice: number;
   currency: string;
+}
+
+// ========================
+// SERVICE & MAINTENANCE
+// ========================
+
+export interface ServiceRecord {
+  id: string;
+  date: string;
+  type: 'scheduled' | 'extra' | 'repair' | 'eu_control';
+  performedBy: string;
+  description: string;
+  items: ServiceCheckItem[];
+  cost?: number;
+  invoiceRef?: string;
+  nextServiceDue?: string;
+  notes?: string;
+}
+
+export interface ServiceCheckItem {
+  category: 'brakes' | 'tires' | 'lights' | 'coupling' | 'chassis' | 'bearings' | 'electrics' | 'body';
+  item: string;
+  status: 'ok' | 'warning' | 'replaced' | 'needs_repair';
+  notes?: string;
+}
+
+// ========================
+// INSPECTION CHECKLIST
+// ========================
+
+export type InspectionCategory =
+  | 'tires'
+  | 'brakes'
+  | 'lights'
+  | 'body'
+  | 'equipment'
+  | 'documents';
+
+export interface InspectionItem {
+  id: string;
+  category: InspectionCategory;
+  label: string;
+  checked: boolean;
+  status: 'ok' | 'minor_damage' | 'major_damage' | 'not_applicable';
+  notes?: string;
+}
+
+export interface InspectionChecklist {
+  completedAt: string;
+  completedBy: string;
+  items: InspectionItem[];
+  overallStatus: 'passed' | 'passed_with_notes' | 'failed';
+  photos?: string[];
+  signature?: string;
+  notes?: string;
+}
+
+// ========================
+// WORKSHOP REQUESTS
+// ========================
+
+export type WorkshopRequestStatus =
+  | 'draft'
+  | 'sent'
+  | 'acknowledged'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled';
+
+export type WorkshopRequestType =
+  | 'scheduled_service'
+  | 'repair'
+  | 'eu_control'
+  | 'damage_fix';
+
+export interface WorkshopRequest {
+  id: string;
+  trailerId: string;
+  trailerBarcode: string;
+  warehouseCode: string;
+  requestDate: string;
+  requestedBy: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: WorkshopRequestType;
+  description: string;
+  damageReportId?: string;
+  workshopName: string;
+  workshopEmail: string;
+  workshopPhone?: string;
+  status: WorkshopRequestStatus;
+  sentAt?: string;
+  completedAt?: string;
+  estimatedCost?: number;
+  actualCost?: number;
+  invoiceRef?: string;
+  notes?: string;
+}
+
+export interface WorkshopConfig {
+  warehouseCode: string;
+  defaultWorkshopName: string;
+  defaultWorkshopEmail: string;
+  defaultWorkshopPhone?: string;
+  notifyOnDamageReturn: boolean;
+  notifyOnServiceDue: boolean;
+  serviceIntervalMonths: number;
 }
