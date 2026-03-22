@@ -1,0 +1,79 @@
+{
+  "profileName": "Optimera-Tilhenger-Terminal",
+  "profileDescription": "Kiosk-profil for tilhengerutleie på Zebra TC27",
+  "targetPlatform": "android_enterprise",
+  "targetDevices": ["Zebra_TC27"],
+
+  "kioskMode": {
+    "enabled": true,
+    "lockdownType": "single_app",
+    "app": {
+      "packageName": "com.android.chrome",
+      "launchUrl": "https://tilhenger.optimera.no/terminal",
+      "kioskFlags": [
+        "HIDE_NAVIGATION_BAR",
+        "IMMERSIVE_MODE"
+      ]
+    },
+    "allowedApps": [
+      "com.android.chrome",
+      "com.symbol.datawedge"
+    ],
+    "exitPassword": "ADMIN_PIN_CHANGE_ME",
+    "allowStatusBar": true,
+    "allowNotifications": true
+  },
+
+  "datawedge": {
+    "profileName": "OptimeraTerminal",
+    "enabled": true,
+    "appList": [
+      {
+        "packageName": "com.android.chrome",
+        "activityList": ["*"]
+      }
+    ],
+    "barcodeScannerInput": {
+      "enabled": true,
+      "triggerMode": "HARD_TRIGGER",
+      "scanTone": true,
+      "vibrateOnScan": true,
+      "decoder": {
+        "QR_CODE": true,
+        "CODE_128": true,
+        "CODE_39": true,
+        "EAN_13": true,
+        "UPC_A": true
+      }
+    },
+    "keystrokeOutput": {
+      "enabled": true,
+      "actionKeyCharacter": "ENTER",
+      "interCharacterDelay": 50,
+      "sendAsKeystrokes": true
+    }
+  },
+
+  "oemConfig": {
+    "zebra": {
+      "touchPanel": {
+        "mode": "GLOVE_AND_FINGER"
+      },
+      "powerManagement": {
+        "screenOffTimeout_seconds": 300,
+        "dozeMode": false
+      }
+    }
+  },
+
+  "wifi": {
+    "ssid": "MONTER-STAFF",
+    "security": "WPA2_ENTERPRISE",
+    "autoConnect": true
+  },
+
+  "display": {
+    "brightness": 100,
+    "orientation": "portrait"
+  }
+}

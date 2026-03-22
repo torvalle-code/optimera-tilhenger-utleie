@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #E52629;
+  --color-primary-dark: #C41E21;
+  --color-dark: #101920;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent text selection on terminal (glove-friendly) */
+.terminal-mode {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* But allow input fields to be selectable */
+.terminal-mode input,
+.terminal-mode textarea,
+.terminal-mode select {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Large touch targets for terminal */
+.touch-target {
+  min-height: 56px;
+  min-width: 56px;
+}

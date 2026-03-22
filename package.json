@@ -1,0 +1,35 @@
+{
+  "name": "optimera-tilhenger-utleie",
+  "version": "1.0.0",
+  "description": "Tilhengerutleie-system for Optimera/Monter - Zebra TC27 + admin dashboard + Sharefox API",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "author": "Optimera",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "next": "^16.2.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.1",
+    "jest": "^30.3.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3"
+  }
+}
