@@ -205,12 +205,19 @@ flatbed:      400 kr/dag, 600 kr/helg, 1400 kr/uke
 - [x] PWA manifest
 - [x] 55 unit tester — alle bestar
 
-### Fase 2: Integrasjon
-- [ ] Sharefox API-klient (server-side)
-- [ ] BFF API-routes
-- [ ] Offline IndexedDB + Service Worker
-- [ ] Live flate fra Sharefox
-- [ ] Admin: fleet, rentals, calendar, customers, reports
+### Fase 2: Integrasjon ✓ (v1.1)
+- [x] Sharefox API-klient (server-side) + mock-modus
+- [x] 7 BFF API-routes (fleet, inventory, rentals, returns, customers, sync, ping)
+- [x] Offline IndexedDB via Dexie (fleet cache, rental cache, sync queue)
+- [x] Hooks: useOnlineStatus, useSyncQueue, useSharefox, useWarehouse
+- [x] 23-punkts utleveringssjekkliste (Statens vegvesen)
+- [x] Forerkortklasse-validering (B/B96/BE vs tilhengervekt)
+- [x] 9 terminal-sider (+ checkout, aktive utleier, forbedret innlevering)
+- [x] 11 admin-sider (fleet, service, verksted, utleier, kalender, kunder, rapporter, innstillinger, roadmap)
+- [x] Demo-data: 5 tilhengere, 6 kunder, 8 utleier, 12 servicer, 5 verksted-avrop
+- [x] SVG-charts (ChartBar, ProgressBar)
+- [x] ErrorBoundary, WarehouseProvider, AdminSidebar
+- [x] 141 tester — alle bestar
 
 ### Fase 3: Kundeintegrasjon
 - [ ] Min Optimera Proff API
@@ -228,7 +235,7 @@ flatbed:      400 kr/dag, 600 kr/helg, 1400 kr/uke
 ## 8. TESTING
 
 ```bash
-npm test          # Kjor alle 55 tester
+npm test          # Kjor alle 141 tester
 npm test:watch    # Watch-modus
 npm run build     # Verifiser produksjons-build
 npm run dev       # Start dev-server (Turbopack)
