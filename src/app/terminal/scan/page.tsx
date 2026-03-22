@@ -6,53 +6,66 @@ import { TerminalHeader } from '@/components/terminal/TerminalHeader';
 import { ScanInput } from '@/components/terminal/ScanInput';
 import { TrailerCard } from '@/components/terminal/TrailerCard';
 import { Button } from '@/components/ui';
-import { findTrailerByBarcode } from '@/lib/fleet/trailers';
+import { useSharefox } from '@/hooks/useSharefox';
+import { useWarehouse } from '@/components/terminal/WarehouseProvider';
+import { useSyncQueue } from '@/hooks/useSyncQueue';
+import { setRentalTrailer } from '@/lib/storage';
 import { Trailer } from '@/lib/types';
 
 export default function ScanPage() {
   const router = useRouter();
+  const { warehouse } = useWarehouse();
+  const { syncStatus, pendingCount } = useSyncQueue();
+  const { lookupByBarcode, loading: sfLoading } = useSharefox();
   const [trailer, setTrailer] = useState<Trailer | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [syncStatus] = useState<'online' | 'syncing' | 'offline'>('online');
+  const [scanning, setScanning] = useState(false);
 
-  const handleScan = useCallback((barcode: string) => {
+  const handleScan = useCallback(async (barcode: string) => {
     setError(null);
-    const found = findTrailerByBarcode(barcode);
-    if (!found) {
-      setError(`Fant ingen tilhenger med strekkode "${barcode}"`);
-      setTrailer(null);
-      return;
-    }
-    if (found.status === 'rented') {
-      setError('Denne tilhengeren er allerede utleid');
+    setScanning(true);
+    try {
+      const found = await lookupByBarcode(barcode);
+      if (!found) {
+        setError(`Fant ingen tilhenger med strekkode "${barcode}"`);
+        setTrailer(null);
+        return;
+      }
+      if (found.status === 'rented') {
+        setError('Denne tilhengeren er allerede utleid');
+        setTrailer(found);
+        return;
+      }
+      if (found.status === 'maintenance') {
+        setError('Denne tilhengeren er under vedlikehold');
+        setTrailer(found);
+        return;
+      }
       setTrailer(found);
-      return;
+    } finally {
+      setScanning(false);
     }
-    if (found.status === 'maintenance') {
-      setError('Denne tilhengeren er under vedlikehold');
-      setTrailer(found);
-      return;
-    }
-    setTrailer(found);
-  }, []);
+  }, [lookupByBarcode]);
 
   const handleContinue = () => {
     if (trailer && trailer.status === 'available') {
-      // Store trailer in sessionStorage for the next step
-      sessionStorage.setItem('rental_trailer', JSON.stringify(trailer));
+      setRentalTrailer(trailer);
       router.push('/terminal/customer');
     }
   };
 
+  const isLoading = scanning || sfLoading;
+
   return (
     <>
-      <TerminalHeader warehouseName="Monter Skien" syncStatus={syncStatus} />
+      <TerminalHeader warehouseName={warehouse.name} syncStatus={syncStatus} queueCount={pendingCount} />
 
       <main className="flex-1 flex flex-col p-4 gap-4">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
             className="touch-target flex items-center justify-center"
+            aria-label="Tilbake"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5M12 19l-7-7 7-7" />
@@ -62,6 +75,13 @@ export default function ScanPage() {
         </div>
 
         <ScanInput onScan={handleScan} placeholder="Skann tilhenger strekkode..." />
+
+        {isLoading && (
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin w-6 h-6 border-2 border-gray-300 border-t-[#E52629] rounded-full" />
+            <span className="ml-2 text-sm text-gray-500">Soker...</span>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm">
@@ -74,7 +94,7 @@ export default function ScanPage() {
             <TrailerCard trailer={trailer} />
 
             {trailer.status === 'available' && (
-              <Button size="terminal" variant="primary" onClick={handleContinue}>
+              <Button size="terminal" variant="primary" onClick={handleContinue} aria-label="Fortsett til kundeidentifisering">
                 Fortsett — Identifiser kunde
               </Button>
             )}
@@ -82,7 +102,7 @@ export default function ScanPage() {
         )}
 
         {/* Quick test buttons for demo */}
-        {!trailer && (
+        {!trailer && !isLoading && (
           <div className="mt-4 space-y-2">
             <p className="text-xs text-gray-400 uppercase tracking-wide">Hurtigtest (demo)</p>
             {['TH-SKI-001', 'TH-SKI-002', 'TH-SKI-003', 'TH-SKI-004'].map((code) => (
@@ -90,6 +110,7 @@ export default function ScanPage() {
                 key={code}
                 onClick={() => handleScan(code)}
                 className="w-full text-left px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50"
+                aria-label={`Test med strekkode ${code}`}
               >
                 {code}
               </button>

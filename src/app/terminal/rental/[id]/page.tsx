@@ -6,28 +6,32 @@ import { TerminalHeader } from '@/components/terminal/TerminalHeader';
 import { RentalSummary } from '@/components/terminal/RentalSummary';
 import { Button } from '@/components/ui';
 import { Rental } from '@/lib/types';
+import { getRentalConfirmed, clearRentalFlow } from '@/lib/storage';
+import { useWarehouse } from '@/components/terminal/WarehouseProvider';
+import { useSyncQueue } from '@/hooks/useSyncQueue';
 
 export default function RentalReceiptPage() {
   const router = useRouter();
+  const { warehouse } = useWarehouse();
+  const { syncStatus, pendingCount } = useSyncQueue();
   const [rental, setRental] = useState<Partial<Rental> | null>(null);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('rental_confirmed');
+    const stored = getRentalConfirmed();
     if (stored) {
-      setRental(JSON.parse(stored));
-      // Clean up session after displaying
-      sessionStorage.removeItem('rental_trailer');
-      sessionStorage.removeItem('rental_customer');
+      setRental(stored);
     }
   }, []);
+
+  const isSynced = rental?.sharefoxOrderId ? true : false;
 
   if (!rental) {
     return (
       <>
-        <TerminalHeader warehouseName="Monter Skien" syncStatus="online" />
+        <TerminalHeader warehouseName={warehouse.name} syncStatus={syncStatus} queueCount={pendingCount} />
         <main className="flex-1 flex flex-col items-center justify-center p-4">
           <p className="text-gray-500">Ingen utleie funnet</p>
-          <Button size="terminal" variant="primary" className="mt-4" onClick={() => router.push('/terminal')}>
+          <Button size="terminal" variant="primary" className="mt-4" onClick={() => router.push('/terminal')} aria-label="Tilbake til start">
             Tilbake til start
           </Button>
         </main>
@@ -37,7 +41,7 @@ export default function RentalReceiptPage() {
 
   return (
     <>
-      <TerminalHeader warehouseName="Monter Skien" syncStatus="online" />
+      <TerminalHeader warehouseName={warehouse.name} syncStatus={syncStatus} queueCount={pendingCount} />
 
       <main className="flex-1 flex flex-col p-4 gap-4">
         {/* Success banner */}
@@ -53,6 +57,19 @@ export default function RentalReceiptPage() {
           </p>
         </div>
 
+        {/* Sync status badge */}
+        {isSynced ? (
+          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2 flex items-center gap-2" role="status">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-green-800 text-sm font-medium">Synkronisert &#x2713;</span>
+          </div>
+        ) : (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-2 flex items-center gap-2" role="status">
+            <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+            <span className="text-orange-800 text-sm font-medium">Venter pa synkronisering &#x23F3;</span>
+          </div>
+        )}
+
         <RentalSummary rental={rental} showPrice />
 
         <div className="mt-auto space-y-3 pt-4">
@@ -60,9 +77,10 @@ export default function RentalReceiptPage() {
             size="terminal"
             variant="primary"
             onClick={() => {
-              sessionStorage.removeItem('rental_confirmed');
+              clearRentalFlow();
               router.push('/terminal/scan');
             }}
+            aria-label="Start ny utleie"
           >
             Ny utleie
           </Button>
@@ -71,9 +89,10 @@ export default function RentalReceiptPage() {
             size="terminal"
             variant="secondary"
             onClick={() => {
-              sessionStorage.removeItem('rental_confirmed');
+              clearRentalFlow();
               router.push('/terminal');
             }}
+            aria-label="Tilbake til startskjerm"
           >
             Tilbake til start
           </Button>

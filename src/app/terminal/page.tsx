@@ -1,20 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { TerminalHeader } from '@/components/terminal/TerminalHeader';
 import { Button } from '@/components/ui';
+import { useWarehouse } from '@/components/terminal/WarehouseProvider';
+import { useSyncQueue } from '@/hooks/useSyncQueue';
 
 export default function TerminalHomePage() {
   const router = useRouter();
-  const [syncStatus] = useState<'online' | 'syncing' | 'offline'>('online');
+  const { warehouse } = useWarehouse();
+  const { syncStatus, pendingCount } = useSyncQueue();
 
   return (
     <>
       <TerminalHeader
-        warehouseName="Monter Skien"
+        warehouseName={warehouse.name}
         syncStatus={syncStatus}
-        queueCount={0}
+        queueCount={pendingCount}
       />
 
       <main className="flex-1 flex flex-col p-4 gap-4">
@@ -24,6 +27,7 @@ export default function TerminalHomePage() {
             size="terminal"
             variant="primary"
             onClick={() => router.push('/terminal/scan')}
+            aria-label="Start ny utleie ved a skanne tilhenger"
           >
             <span className="flex items-center gap-3">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -38,6 +42,7 @@ export default function TerminalHomePage() {
             size="terminal"
             variant="secondary"
             onClick={() => router.push('/terminal/return')}
+            aria-label="Registrer innlevering av tilhenger"
           >
             <span className="flex items-center gap-3">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -55,10 +60,11 @@ export default function TerminalHomePage() {
             size="lg"
             variant="ghost"
             className="w-full justify-between"
-            onClick={() => {/* TODO: active rentals list */}}
+            onClick={() => router.push('/terminal/rentals')}
+            aria-label="Vis aktive utleier"
           >
             <span>Aktive utleier</span>
-            <span className="text-gray-400">→</span>
+            <span className="text-gray-400">&rarr;</span>
           </Button>
 
           <Button
@@ -66,9 +72,15 @@ export default function TerminalHomePage() {
             variant="ghost"
             className="w-full justify-between"
             onClick={() => router.push('/terminal/queue')}
+            aria-label="Vis synkroniseringsko"
           >
             <span>Synkroniseringsko</span>
-            <span className="text-gray-400">→</span>
+            {pendingCount > 0 && (
+              <span className="bg-orange-100 text-orange-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                {pendingCount}
+              </span>
+            )}
+            <span className="text-gray-400">&rarr;</span>
           </Button>
         </div>
       </main>
